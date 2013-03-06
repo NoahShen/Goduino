@@ -1,6 +1,5 @@
 #include <aJSON.h>
 
-unsigned long last_print = 0;
 aJsonStream serial_stream(&Serial);
 
 void setup()
@@ -8,16 +7,35 @@ void setup()
   Serial.begin(9600);
 }
 
-/* Process message like: { "pwm": { "8": 0, "9": 128 } } */
+/* Process message like: 
+{
+  "id": "LJjGrWk-187",
+  "action": "mode",
+  "payload": {
+          "pin": "1",
+          "mode": "OUTPUT"
+     }
+} 
+*/
 void processMessage(aJsonObject *msg)
 {
   aJsonObject *action = aJson.getObjectItem(msg, "action");
   char *actionValue = action->valuestring;
-  if (actionValue == "status") {
+  if (actionValue == "status") {// get arduino status
     Serial.println(actionValue);
-  } else if (actionValue == "mode") {
+  } else if (actionValue == "mode") {// set pin mode
     Serial.println(actionValue);
-  } 
+  } else if (actionValue == "digitalwrite") {
+    Serial.println(actionValue);
+  } else if (actionValue == "digitalread") {
+    Serial.println(actionValue);
+  } else if (actionValue == "analogread") {
+    Serial.println(actionValue);
+  } else if (actionValue == "analogwrite") {
+    Serial.println(actionValue);
+  } else if (actionValue == "analogreference") {
+    Serial.println(actionValue);
+  }
 }
 
 void loop()
