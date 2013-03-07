@@ -11,9 +11,7 @@ void setup() {
 
 
 void loop() {
-  Serial.println("check");
   if (serial_stream.available()) {
-    /* First, skip any accidental whitespace like newlines. */
     serial_stream.skip();
   }
   if (serial_stream.available()) {
@@ -26,7 +24,6 @@ void loop() {
     processMessage(msg);
     aJson.deleteItem(msg);
   }
-  delay(1000);
 }
 
 void sendJson(aJsonObject *jsonObj) {
@@ -77,10 +74,10 @@ void processMessage(aJsonObject *req) {
     resp = createErrorResp(req, "Invalid action!");
   }
   
-  if (actionValue) {
-    free(actionValue);
-  }
   sendJson(resp);
+  if (debug) {
+    Serial.println();
+  }
   aJson.deleteItem(resp);
 }
 
@@ -115,15 +112,21 @@ aJsonObject* handleSetMode(aJsonObject *req) {
   aJsonObject *payloadObj = aJson.getObjectItem(req, "payload");
   aJsonObject *pinObj = aJson.getObjectItem(payloadObj, "pin");
   char* pin  = pinObj->valuestring;
-  Serial.print("pin:");
-  Serial.println(pin);
+  if (debug) {
+    Serial.print("pin:");
+    Serial.println(pin);
+  }
   int p = getPin(pin);
   if(p == -1) {
-    aJsonObject *resp = createErrorResp(req, "bad pin!");
+    aJsonObject *resp = createErrorResp(req, "Bad pin!");
     return resp;
   }
   aJsonObject *modeObj = aJson.getObjectItem(payloadObj, "mode");
   char* mode  = modeObj->valuestring;
+  if (debug) {
+    Serial.print("mode:");
+    Serial.println(mode);
+  }
   if (!strcmp(mode, "OUTPUT")) {
     pinMode(p, OUTPUT);
   } else if (!strcmp(mode, "INPUT")){
@@ -141,12 +144,20 @@ aJsonObject* handleDigitalWrite(aJsonObject *req) {
   aJsonObject *pinObj = aJson.getObjectItem(payloadObj, "pin");
   char* pin  = pinObj->valuestring;
   int p = getPin(pin);
+  if (debug) {
+    Serial.print("pin:");
+    Serial.println(p);
+  }
   if(p == -1) {
     aJsonObject *resp = createErrorResp(req, "Bad pin!");
     return resp;
   }
-  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "mode");
+  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "value");
   char* value  = valueObj->valuestring;
+  if (debug) {
+    Serial.print("value:");
+    Serial.println(value);
+  }
   if (!strcmp(value, "LOW")) {
     digitalWrite(p, LOW);
   } else if (!strcmp(value, "HIGH")){
@@ -211,7 +222,7 @@ aJsonObject* handleAnalogWrite(aJsonObject *req) {
     return resp;
   }
   
-  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "mode");
+  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "value");
   int value  = valueObj->valueint;
   if (value < 0 || value > 255) {
     aJsonObject *resp = createErrorResp(req, "Invalid value, analog value must be 0~255!");
