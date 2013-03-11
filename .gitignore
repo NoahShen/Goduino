@@ -20,3 +20,7 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+
+#golang bin pkg file
+controller/bin
+controller/pkg
