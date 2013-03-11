@@ -8,8 +8,6 @@ void setup() {
   started = true;
 }
 
-
-
 void loop() {
   if (serial_stream.available()) {
     serial_stream.skip();
@@ -31,7 +29,6 @@ void sendJson(aJsonObject *jsonObj) {
     Serial.print(json);
     free(json);
 }
-
 
 /* Process message like: 
 {
@@ -224,6 +221,10 @@ aJsonObject* handleAnalogWrite(aJsonObject *req) {
   
   aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "value");
   int value  = valueObj->valueint;
+  if (debug) {
+    Serial.print("value:");
+    Serial.println(value);
+  }
   if (value < 0 || value > 255) {
     aJsonObject *resp = createErrorResp(req, "Invalid value, analog value must be 0~255!");
     return resp;
@@ -232,7 +233,6 @@ aJsonObject* handleAnalogWrite(aJsonObject *req) {
   aJsonObject *resp = createResp(req, "success");
   return resp;
 }
-
 
 int getPin(char *pin) { //Converts to A0-A5, and returns -1 on error
   int ret = -1;
