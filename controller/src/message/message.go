@@ -20,7 +20,7 @@ type Result string
 
 const (
 	Success = Result("success")
-	Error   = Action("error")
+	Error   = Result("error")
 )
 
 type PinMode string
@@ -33,7 +33,9 @@ const (
 type Message struct {
 	Id      string   `json:"id,omitempty"`
 	Action  Action   `json:"action,omitempty"`
-	Result  string   `json:"result,omitempty"`
+	Result  Result   `json:"result,omitempty"`
+	Status  string   `json:"status,omitempty"`
+	Message string   `json:"message,omitempty"`
 	PayLoad *PayLoad `json:"payload,omitempty"`
 }
 

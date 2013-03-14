@@ -35,3 +35,7 @@ func (self *Board) Read() (*message.Message, error) {
 	err := self.readDecoder.Decode(msg)
 	return msg, err
 }
+
+func (self *Board) Close() error {
+	return self.serial.Close()
+}
