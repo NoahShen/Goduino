@@ -2,7 +2,6 @@ package goduino
 
 import (
 	"encoding/json"
-	"message"
 	"testing"
 )
 
@@ -12,7 +11,7 @@ func NoTestCreateBoard(t *testing.T) {
 		t.Log(err)
 		t.FailNow()
 	}
-	request := message.CreateRequest(message.Status)
+	request := CreateRequest(Status)
 	wErr := board.Write(request)
 	if wErr != nil {
 		t.Fatal(wErr)

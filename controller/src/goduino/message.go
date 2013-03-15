@@ -1,8 +1,7 @@
-package message
+package goduino
 
 import (
 	"strconv"
-	"utils"
 )
 
 type Action string
@@ -14,6 +13,15 @@ const (
 	DigitalRead  = Action("digitalread")
 	AnalogWrite  = Action("analogwrite")
 	AnalogRead   = Action("analogread")
+)
+
+// digital value
+
+type DigitalValue string
+
+const (
+	HIGH = DigitalValue("HIGH")
+	LOW  = DigitalValue("LOW")
 )
 
 type Result string
@@ -40,15 +48,16 @@ type Message struct {
 }
 
 type PayLoad struct {
-	Pin   string  `json:"pin,omitempty"`
-	Mode  PinMode `json:"mode,omitempty"`
-	Value string  `json:"value,omitempty"`
+	Pin          string       `json:"pin,omitempty"`
+	Mode         PinMode      `json:"mode,omitempty"`
+	DigitalValue DigitalValue `json:"digitalvalue,omitempty"`
+	AnalogValue  int          `json:"analogValue,omitempty"`
 }
 
 var i = 0
 
 func CreateRequest(action Action) *Message {
-	id := utils.RandomString(10) + "-" + strconv.Itoa(i)
+	id := RandomString(10) + "-" + strconv.Itoa(i)
 	i++
 	message := &Message{Id: id, Action: action}
 	return message

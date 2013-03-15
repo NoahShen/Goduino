@@ -1,4 +1,4 @@
-package utils
+package goduino
 
 import (
 	"bytes"

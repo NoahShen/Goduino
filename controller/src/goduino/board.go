@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/tarm/goserial"
 	"io"
-	"message"
 )
 
 type Board struct {
@@ -26,12 +25,12 @@ func NewBoard(portName string, baud int) (*Board, error) {
 	return board, nil
 }
 
-func (self *Board) Write(msg *message.Message) error {
+func (self *Board) Write(msg *Message) error {
 	return self.writeEncoder.Encode(msg)
 }
 
-func (self *Board) Read() (*message.Message, error) {
-	msg := new(message.Message)
+func (self *Board) Read() (*Message, error) {
+	msg := new(Message)
 	err := self.readDecoder.Decode(msg)
 	return msg, err
 }

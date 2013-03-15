@@ -3,13 +3,12 @@ package goduino
 import (
 	"errors"
 	"log"
-	"message"
 	"sync"
 )
 
 type Goduino struct {
 	board      *Board
-	writeQueue chan *message.Message
+	writeQueue chan *Message
 	stopSendCh chan int
 	mutex      sync.Mutex
 	handlers   []Handler
@@ -17,7 +16,7 @@ type Goduino struct {
 
 func NewGoduino() *Goduino {
 	g := new(Goduino)
-	g.writeQueue = make(chan *message.Message, 10)
+	g.writeQueue = make(chan *Message, 10)
 	g.stopSendCh = make(chan int)
 	return g
 }
@@ -38,7 +37,7 @@ func (self *Goduino) Disconnect() error {
 	return self.board.Close()
 }
 
-func (self *Goduino) SendMessage(msg *message.Message) {
+func (self *Goduino) SendMessage(msg *Message) {
 	self.writeQueue <- msg
 }
 
@@ -87,7 +86,7 @@ func (self *Goduino) RemoveHandlerByIndex(i int) {
 	self.handlers = append(self.handlers[0:i], self.handlers[i+1:]...)
 }
 
-func (self *Goduino) fireHandler(msg *message.Message) {
+func (self *Goduino) fireHandler(msg *Message) {
 	for i := len(self.handlers) - 1; i >= 0; i-- {
 		h := self.handlers[i]
 		if h.Filter(msg) {
@@ -100,14 +99,96 @@ func (self *Goduino) fireHandler(msg *message.Message) {
 }
 
 func (self *Goduino) IsReady() bool {
-	request := message.CreateRequest(message.Status)
+	request := CreateRequest(Status)
 	h := NewMessageIdHandler(request.Id)
 	self.AddHandler(h)
 	self.SendMessage(request)
 	resp := <-h.GetHandleCh()
-	if resp.Result == message.Error {
+	if resp.Result == Error {
 		log.Println("Get status error:", errors.New(resp.Message))
 		return false
 	}
 	return resp.Status == "started"
+}
+
+func (self *Goduino) SetPinMode(pin string, mode PinMode) error {
+	request := CreateRequest(Mode)
+	payLoad := &PayLoad{Pin: pin, Mode: mode}
+	request.PayLoad = payLoad
+	h := NewMessageIdHandler(request.Id)
+	self.AddHandler(h)
+	self.SendMessage(request)
+	resp := <-h.GetHandleCh()
+	if resp.Result != Success {
+		e := errors.New(resp.Message)
+		log.Println("Set Pin Mode error:", e)
+		return e
+	}
+	return nil
+}
+
+func (self *Goduino) DigitalRead(pin string) (DigitalValue, error) {
+	request := CreateRequest(DigitalRead)
+	payLoad := &PayLoad{Pin: pin}
+	request.PayLoad = payLoad
+	h := NewMessageIdHandler(request.Id)
+	self.AddHandler(h)
+	self.SendMessage(request)
+	resp := <-h.GetHandleCh()
+	if resp.Result != Success {
+		e := errors.New(resp.Message)
+		log.Println("Digital read error:", e)
+		return "", e
+	}
+	respPayLoad := resp.PayLoad
+	return respPayLoad.DigitalValue, nil
+}
+
+func (self *Goduino) DigitalWrite(pin string, value DigitalValue) error {
+	request := CreateRequest(DigitalWrite)
+	payLoad := &PayLoad{Pin: pin, DigitalValue: value}
+	request.PayLoad = payLoad
+	h := NewMessageIdHandler(request.Id)
+	self.AddHandler(h)
+	self.SendMessage(request)
+	resp := <-h.GetHandleCh()
+	if resp.Result != Success {
+		e := errors.New(resp.Message)
+		log.Println("Digital write error:", e)
+		return e
+	}
+	return nil
+}
+
+func (self *Goduino) AnalogRead(pin string) (int, error) {
+	request := CreateRequest(AnalogRead)
+	payLoad := &PayLoad{Pin: pin}
+	request.PayLoad = payLoad
+	h := NewMessageIdHandler(request.Id)
+	self.AddHandler(h)
+	self.SendMessage(request)
+	resp := <-h.GetHandleCh()
+	if resp.Result != Success {
+		e := errors.New(resp.Message)
+		log.Println("Analog read error:", e)
+		return 0, e
+	}
+	respPayLoad := resp.PayLoad
+	return respPayLoad.AnalogValue, nil
+}
+
+func (self *Goduino) AnalogWrite(pin string, value int) error {
+	request := CreateRequest(AnalogWrite)
+	payLoad := &PayLoad{Pin: pin, AnalogValue: value}
+	request.PayLoad = payLoad
+	h := NewMessageIdHandler(request.Id)
+	self.AddHandler(h)
+	self.SendMessage(request)
+	resp := <-h.GetHandleCh()
+	if resp.Result != Success {
+		e := errors.New(resp.Message)
+		log.Println("Analog write error:", e)
+		return e
+	}
+	return nil
 }

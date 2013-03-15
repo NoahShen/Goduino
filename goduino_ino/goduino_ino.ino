@@ -149,7 +149,7 @@ aJsonObject* handleDigitalWrite(aJsonObject *req) {
     aJsonObject *resp = createErrorResp(req, "Bad pin!");
     return resp;
   }
-  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "value");
+  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "digitalvalue");
   char* value  = valueObj->valuestring;
   if (debug) {
     Serial.print("value:");
@@ -182,9 +182,9 @@ aJsonObject* handleDigitalRead(aJsonObject *req) {
   aJsonObject *respPayloadObj = aJson.createObject();
   aJson.addStringToObject(respPayloadObj,"pin", pin);
   if (val == HIGH) {
-    aJson.addStringToObject(respPayloadObj,"value", "HIGH");
+    aJson.addStringToObject(respPayloadObj,"digitalvalue", "HIGH");
   } else {
-    aJson.addStringToObject(respPayloadObj,"value", "LOW");
+    aJson.addStringToObject(respPayloadObj,"digitalvalue", "LOW");
   }
   aJson.addItemToObject(resp, "payload", respPayloadObj);
   return resp;
@@ -204,7 +204,7 @@ aJsonObject* handleAnalogRead(aJsonObject *req) {
   aJsonObject *resp = createResp(req, "success");
   aJsonObject *respPayloadObj = aJson.createObject();
   aJson.addStringToObject(respPayloadObj,"pin", pin);
-  aJson.addNumberToObject(respPayloadObj,"value", val);
+  aJson.addNumberToObject(respPayloadObj,"analogValue", val);
   aJson.addItemToObject(resp, "payload", respPayloadObj);
   return resp;
 }
@@ -219,7 +219,7 @@ aJsonObject* handleAnalogWrite(aJsonObject *req) {
     return resp;
   }
   
-  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "value");
+  aJsonObject *valueObj = aJson.getObjectItem(payloadObj, "analogValue");
   int value  = valueObj->valueint;
   if (debug) {
     Serial.print("value:");

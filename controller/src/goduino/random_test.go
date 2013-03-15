@@ -1,10 +1,10 @@
-package utils
+package goduino
 
 import (
 	"testing"
 )
 
-func TestRandString(t *testing.T) {
+func NoTestRandString(t *testing.T) {
 	token := RandomString(10)
 	t.Log(token)
 }
